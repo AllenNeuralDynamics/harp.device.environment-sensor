@@ -10,7 +10,7 @@
 #include "core1_sensor.h"
 
 // Create device name array.
-const uint16_t who_am_i = 1845;
+const uint16_t who_am_i = 1405;
 const uint8_t hw_version_major = 1;
 const uint8_t hw_version_minor = 0;
 const uint8_t assembly_version = 2;
@@ -51,7 +51,6 @@ struct app_regs_t
     float humidity_units;         // app register 2
     float pressure_temp_humidity[3];
     uint8_t enable_sensor_dispatch_events;
-    // bool mute_harp_events; // harp.ismuted()?
 } app_regs;
 #pragma pack(pop)
 
