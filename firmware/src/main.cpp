@@ -10,15 +10,15 @@
 #include "core1_sensor.h"
 
 // Create device name array.
-const uint16_t who_am_i = 1405;
-const uint8_t hw_version_major = 1;
-const uint8_t hw_version_minor = 0;
-const uint8_t assembly_version = 2;
-const uint8_t harp_version_major = 0;
-const uint8_t harp_version_minor = 0;
-const uint8_t fw_version_major = 0;
-const uint8_t fw_version_minor = 1;
-const uint16_t serial_number = ENV_SENSOR_DEVICE_ID;
+const uint16_t who_am_i = ENV_SENSOR_DEVICE_ID;
+const uint8_t hw_version_major = HW_VERSION_MAJOR;
+const uint8_t hw_version_minor = HW_VERSION_MINOR;
+const uint8_t assembly_version = DEVICE_ASSEMBLY_VERSION;
+const uint8_t harp_version_major = HARP_VERSION_MAJOR;
+const uint8_t harp_version_minor = HARP_VERSION_MINOR;
+const uint8_t fw_version_major = FW_VERSION_MAJOR;
+const uint8_t fw_version_minor = FW_VERSION_MINOR;
+const uint16_t serial_number = DEVICE_SERIAL_NUMBER;
 
 
 void set_led_state(bool enabled)
