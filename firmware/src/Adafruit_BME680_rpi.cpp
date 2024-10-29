@@ -28,81 +28,16 @@
  */
 
 #include "Adafruit_BME680_rpi.h"
-// #include "Arduino.h"
+#include "Arduino.h"
 
 //#define BME680_DEBUG
 
 /** Our hardware interface functions **/
-// static int8_t i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len,
-//                        void *interface);
-// static int8_t i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len,
-//                         void *interface);
 static int8_t spi_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len,
                        void *interface);
 static int8_t spi_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len,
                         void *interface);
 static void delay_usec(uint32_t us, void *intf_ptr);
-
-unsigned long millis();
-
-void delay(uint32_t ms);
-
-
-
-/*!
- *  @brief  Reads 8 bit values over SPI
- */
-static int8_t spi_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len,
-                       void *intf_ptr) {
-  MySPI *_dev = (MySPI *)intf_ptr;
-
-  reg_addr |= 0x80;
-
-  _dev->read(reg_addr,reg_data,len);
-
-  return 0;
-
-  // if (!_dev->write_then_read(&reg_addr, 1, reg_data, len, 0x0)) {
-  //   return -1;
-  // }
-
-  // return 0;
-}
-
-/*!
- *  @brief  Writes 8 bit values over SPI
- */
-static int8_t spi_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len,
-                        void *intf_ptr) {
-  MySPI *_dev = (MySPI *)intf_ptr;
-
-  _dev->write(reg_addr,reg_data,len);
-
-  // if (!_dev->write((uint8_t *)reg_data, len, &reg_addr, 1)) {
-  //   return -1;
-  // }
-
-  return 0;
-}
-
-// Shim functions so copied Adafruit code can use arduino names
-
-static void delay_usec(uint32_t us, void *intf_ptr) {
-  (void)intf_ptr; // Unused parameter
-  sleep_us(us);
-}
-
-
-unsigned long millis()
-{
-  return to_ms_since_boot(get_absolute_time());
-}
-
-void delay(uint32_t ms)
-{
-  sleep_ms(ms);
-}
-
 
 // PUBLIC FUNCTIONS
 
@@ -140,11 +75,10 @@ bool Adafruit_BME680::begin(uint8_t addr, bool initSettings) {
                                defining the heater temperature */
   gas_sensor.delay_us = delay_usec;
 
-
   rslt = bme68x_init(&gas_sensor);
-#ifdef BME680_DEBUG2
-  printf("Init Result: ");
-  printf("%i", rslt);
+#ifdef BME680_DEBUG
+  Serial.print(F("Init Result: "));
+  Serial.println(rslt);
 #endif
 
   if (rslt != BME68X_OK)
@@ -311,8 +245,8 @@ uint32_t Adafruit_BME680::beginReading(void) {
 
   int8_t rslt = bme68x_set_op_mode(BME68X_FORCED_MODE, &gas_sensor);
 #ifdef BME680_DEBUG
-  printf("Opmode Result: %i",rslt);
-  // Serial.println(rslt);
+  Serial.print(F("Opmode Result: "));
+  Serial.println(rslt);
 #endif
   if (rslt != BME68X_OK)
     return false;
@@ -341,7 +275,6 @@ uint32_t Adafruit_BME680::beginReading(void) {
 bool Adafruit_BME680::endReading(void) {
   uint32_t meas_end = beginReading();
 
-
   if (meas_end == 0) {
     return false;
   }
@@ -350,8 +283,6 @@ bool Adafruit_BME680::endReading(void) {
 
   if (remaining_millis > 0) {
 #ifdef BME680_DEBUG
-    Serial.print(F("Waiting (ms) "));
-    Serial.println(remaining_millis);
     Serial.print(F("Waiting (ms) "));
     Serial.println(remaining_millis);
 #endif
@@ -391,13 +322,12 @@ bool Adafruit_BME680::endReading(void) {
     Serial.print(F("data.status 0x"));
     Serial.println(data.status, HEX);
 #endif
-    printf("datastatus: %x\r\n",data.status);
     if (data.status & (BME68X_HEAT_STAB_MSK | BME68X_GASM_VALID_MSK)) {
-      printf("Gas resistance: %f\r\n", data.gas_resistance);
+      // Serial.print("Gas resistance: "); Serial.println(data.gas_resistance);
       gas_resistance = data.gas_resistance;
     } else {
       gas_resistance = 0;
-      printf("Gas reading unstable!");
+      // Serial.println("Gas reading unstable!");
     }
   }
 
@@ -559,66 +489,34 @@ bool Adafruit_BME680::setIIRFilterSize(uint8_t filtersize) {
   return rslt == 0;
 }
 
-// /*!
-//  *  @brief  Reads 8 bit values over I2C
-//  */
-// int8_t i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *intf) {
 
-//   Adafruit_I2CDevice *_dev = (Adafruit_I2CDevice *)intf;
+/*!
+ *  @brief  Reads 8 bit values over SPI
+ */
+static int8_t spi_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len,
+                       void *intf_ptr) {
+  MySPI *_dev = (MySPI *)intf_ptr;
 
-//   if (!_dev->write_then_read(&reg_addr, 1, reg_data, len, true)) {
-//     return -1;
-//   }
+  reg_addr |= 0x80;
 
-//   return 0;
-// }
+  _dev->read(reg_addr,reg_data,len);
 
-// /*!
-//  *  @brief  Writes 8 bit values over I2C
-//  */
-// int8_t i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len,
-//                  void *intf) {
-//   Adafruit_I2CDevice *_dev = (Adafruit_I2CDevice *)intf;
+  return 0;
+}
 
-//   if (!_dev->write((uint8_t *)reg_data, len, true, &reg_addr, 1)) {
-//     return -1;
-//   }
-//   return 0;
-// }
+/*!
+ *  @brief  Writes 8 bit values over SPI
+ */
+static int8_t spi_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len,
+                        void *intf_ptr) {
+  MySPI *_dev = (MySPI *)intf_ptr;
 
-// /*!
-//  *  @brief  Reads 8 bit values over SPI
-//  */
-// static int8_t spi_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len,
-//                        void *intf_ptr) {
-//   Adafruit_SPIDevice *_dev = (Adafruit_SPIDevice *)intf_ptr;
+  _dev->write(reg_addr,reg_data,len);
 
-//   reg_addr |= 0x80;
+  return 0;
+}
 
-//   if (!_dev->write_then_read(&reg_addr, 1, reg_data, len, 0x0)) {
-//     return -1;
-//   }
-
-//   return 0;
-// }
-
-// /*!
-//  *  @brief  Writes 8 bit values over SPI
-//  */
-// static int8_t spi_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len,
-//                         void *intf_ptr) {
-//   Adafruit_SPIDevice *_dev = (Adafruit_SPIDevice *)intf_ptr;
-
-//   if (!_dev->write((uint8_t *)reg_data, len, &reg_addr, 1)) {
-//     return -1;
-//   }
-
-//   return 0;
-// }
-
-// static void delay_usec(uint32_t us, void *intf_ptr) {
-//   (void)intf_ptr; // Unused parameter
-//   delayMicroseconds(us);
-//   yield();
-// }
-
+static void delay_usec(uint32_t us, void *intf_ptr) {
+  (void)intf_ptr; // Unused parameter
+  sleep_us(us);
+}

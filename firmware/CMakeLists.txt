@@ -46,6 +46,9 @@ add_library(myspi
 add_library(core1_sensor
     src/core1_sensor.cpp
 )
+add_library(arduino
+    src/Arduino.cpp
+)
 
 ##############
 
@@ -55,8 +58,9 @@ add_library(core1_sensor
 include_directories(inc)
 
 # Link libraries to the targets that need them.
+target_link_libraries(arduino pico_stdlib)
 target_link_libraries(myspi hardware_spi pico_stdlib)
-target_link_libraries(Adafruit_BME680_rpi pico_stdlib bme68x myspi)
+target_link_libraries(Adafruit_BME680_rpi pico_stdlib bme68x myspi arduino)
 
 if(NOT DEBUG)
     target_link_libraries(core1_sensor Adafruit_BME680_rpi)
