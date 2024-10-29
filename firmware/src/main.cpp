@@ -48,7 +48,7 @@ struct app_regs_t
 {
     uint32_t pressure_pa;  // app register 0
     float temperature_c;         // app register 1
-    float humidity_units;         // app register 2
+    float humidity_prh;         // app register 2
     float pressure_temp_humidity[3];
     uint8_t enable_sensor_dispatch_events;
 } app_regs;
@@ -59,7 +59,7 @@ RegSpecs app_reg_specs[reg_count]
 {
     {(uint8_t*)&app_regs.pressure_pa, sizeof(app_regs.pressure_pa), U32},
     {(uint8_t*)&app_regs.temperature_c, sizeof(app_regs.temperature_c), Float},
-    {(uint8_t*)&app_regs.humidity_units, sizeof(app_regs.humidity_units), Float},
+    {(uint8_t*)&app_regs.humidity_prh, sizeof(app_regs.humidity_prh), Float},
     {(uint8_t*)&app_regs.pressure_temp_humidity, sizeof(app_regs.pressure_temp_humidity), Float},
     {(uint8_t*)&app_regs.enable_sensor_dispatch_events, sizeof(app_regs.enable_sensor_dispatch_events), U8}
 };
@@ -78,7 +78,7 @@ void app_reset()
 {
     app_regs.pressure_pa = 0;
     app_regs.temperature_c = 0;
-    app_regs.humidity_units = 0;
+    app_regs.humidity_prh = 0;
     app_regs.pressure_temp_humidity[0] = 0;
     app_regs.pressure_temp_humidity[1] = 0;
     app_regs.pressure_temp_humidity[2] = 0;
@@ -98,10 +98,10 @@ void update_app_state()
 
         app_regs.pressure_pa = data.pressure_pa;
         app_regs.temperature_c = data.temperature_c;
-        app_regs.humidity_units = data.humidity_units;
+        app_regs.humidity_prh = data.humidity_prh;
         app_regs.pressure_temp_humidity[0] = float(data.pressure_pa);
         app_regs.pressure_temp_humidity[1] = data.temperature_c;
-        app_regs.pressure_temp_humidity[2] = data.humidity_units;
+        app_regs.pressure_temp_humidity[2] = data.humidity_prh;
         
         // Send an event for the aggregate register
         if (!HarpCore::is_muted() && bool(app_regs.enable_sensor_dispatch_events))

@@ -29,7 +29,7 @@ void core1_main()
     sensor_data_t data;
     data.pressure_pa = bme688.pressure;
     data.temperature_c = bme688.temperature;
-    data.humidity_units = bme688.humidity;
+    data.humidity_prh = bme688.humidity;
     queue_add_blocking(&sensor_queue,&data);
   }
 }

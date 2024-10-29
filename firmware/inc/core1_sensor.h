@@ -10,7 +10,7 @@ struct sensor_data_t
 {
     uint32_t pressure_pa;  
     float temperature_c;   
-    float humidity_units;  
+    float humidity_prh;  
 };
 #pragma pack(pop)
 
