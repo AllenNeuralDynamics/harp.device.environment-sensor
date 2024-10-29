@@ -11,13 +11,7 @@ MySPI::MySPI(spi_inst_t* spi_hw, uint8_t spi_pico_pin, uint8_t spi_poci_pin,
   gpio_put(cs_pin_, 1);
 
   if (init_spi_hardware) {
-    // spi_init(spi_inst_, 1000000U);
     spi_init(spi_inst_, 500 * 1000);
-    // spi_set_format(spi_inst_,
-    //                8,          // data bits
-    //                SPI_CPOL_1,  // CPOL
-    //                SPI_CPHA_0,  // CPHA
-    //                SPI_MSB_FIRST);
   }
 
   // Delegate cs_pin setup to another constructor.
@@ -52,14 +46,12 @@ bool MySPI::read(uint8_t reg_addr, uint8_t* reg_data, uint32_t len) {
 bool MySPI::write(uint8_t reg_addr, const uint8_t* reg_data, uint32_t len) {
   uint8_t buf[1];
   buf[0] = reg_addr & 0x7f;  // remove read bit as this is a write
-  //buf[1] = *reg_data;
 
   // CS LOW
   asm volatile("nop");
   gpio_put(cs_pin_, 0);
   asm volatile("nop");
 
-  // printf("about to write\r\n");
   spi_write_blocking(spi_inst_,buf,1);
   spi_write_blocking(spi_inst_, reg_data, len);
 

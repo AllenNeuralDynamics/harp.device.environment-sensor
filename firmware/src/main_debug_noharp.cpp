@@ -23,13 +23,13 @@ Adafruit_BME680 bme688(spi0,BME688_PICO_PIN,BME688_POCI_PIN,BME688_SCK_PIN,BME68
 
 // copied from https://github.com/adafruit/Adafruit_BME680/blob/master/examples/bme680test/bme680test.ino
 void loop(Adafruit_BME680& bme) {
-  uint32_t ping = time_us_32();
+  uint32_t start_time_us = time_us_32();
   if (! bme.performReading()) {
     printf("Failed to perform reading :(\r\n");
     return;
   }
-  uint32_t pong = time_us_32();
-  uint32_t time = pong - ping;
+  uint32_t curr_time_us = time_us_32();
+  uint32_t time = curr_time_us - start_time_us;
 
   printf("Reading time = %lu us\r\n", time);
 
