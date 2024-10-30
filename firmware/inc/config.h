@@ -28,6 +28,8 @@
 #define FW_VERSION_PATCH (0)
 #define DEVICE_SERIAL_NUMBER (0)
 
+#define HARP_DEVICE_NAME "EnvironmentSensor"
+
 #define ENV_SENSOR_DEVICE_ID (0x057D) // 1405
 
 #endif // CONFIG_H
