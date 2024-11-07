@@ -7,22 +7,27 @@ firmwareVersion: "0.1"
 hardwareTargets: "0.1"
 registers:
   Pressure:
+    access: Event
     address: 32
     type: U32
     description: Pressure, in Pa
   Temperature:
+    access: Event
     address: 33
     type: Float
     description: Temperature in degrees C
   Humidity:
+    access: Event
     address: 34
     type: Float
     description: Humidity, in %RH
   PressureTempHumidity:
+    access: Event
     address: 35
     type: Float
     description: Aggregate of pressure, temp, humidity
   EnableSensorDispatchEvents:
+    access: Write
     address: 36
     type: U8
     description: Enables ~2Hz events
