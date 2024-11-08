@@ -41,5 +41,11 @@ registers:
     access: Write
     address: 36
     type: U8
-    maskType: EnableFlag
+    maskType: Events
     description: Enables (~2Hz) or disables the SensorData events
+bitMasks:
+  Events:
+    bits:
+      Disable: 0x0
+      SensorData: 0x1
+    description: Available events on the device
