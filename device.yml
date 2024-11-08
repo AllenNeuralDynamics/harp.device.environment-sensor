@@ -21,11 +21,22 @@ registers:
     address: 34
     type: Float
     description: Humidity, in %RH
-  PressureTempHumidity:
+  SensorData:
     access: Event
     address: 35
     type: Float
-    description: Aggregate of pressure, temp, humidity
+    description: A periodic event will be emitted with aggregated data from all sensors.
+    length: 3
+    payloadSpec:
+      Pressure:
+        offset: 0
+        description: Pressure, in Pa
+      Temperature:
+        offset: 1
+        description: Temperature in degrees C
+      Humidity:
+        offset: 2
+        description: Humidity, in %RH
   EnableSensorDispatchEvents:
     access: Write
     address: 36
