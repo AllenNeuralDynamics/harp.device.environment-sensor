@@ -7,17 +7,17 @@ firmwareVersion: "0.1"
 hardwareTargets: "0.1"
 registers:
   Pressure:
-    access: Event
+    access: Read
     address: 32
     type: U32
     description: Pressure, in Pa
   Temperature:
-    access: Event
+    access: Read
     address: 33
     type: Float
     description: Temperature in degrees C
   Humidity:
-    access: Event
+    access: Read
     address: 34
     type: Float
     description: Humidity, in %RH
