@@ -1,0 +1,28 @@
+%YAML 1.1
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/harp-tech/reflex-generator/main/schema/device.json
+device: EnvironmentSensor
+whoAmI: 1405
+firmwareVersion: "0.1"
+hardwareTargets: "0.1"
+registers:
+  Pressure:
+    address: 32
+    type: U32
+    description: Pressure, in Pa
+  Temperature:
+    address: 33
+    type: Float
+    description: Temperature in degrees C
+  Humidity:
+    address: 34
+    type: Float
+    description: Humidity, in %RH
+  PressureTempHumidity:
+    address: 35
+    type: Float
+    description: Aggregate of pressure, temp, humidity
+  EnableSensorDispatchEvents:
+    address: 36
+    type: U8
+    description: Enables ~2Hz events
