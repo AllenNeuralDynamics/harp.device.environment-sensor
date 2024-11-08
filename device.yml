@@ -37,8 +37,9 @@ registers:
       Humidity:
         offset: 2
         description: Humidity, in %RH
-  EnableSensorDispatchEvents:
+  EnableEvents:
     access: Write
     address: 36
     type: U8
-    description: Enables ~2Hz events
+    maskType: EnableFlag
+    description: Enables (~2Hz) or disables the SensorData events
