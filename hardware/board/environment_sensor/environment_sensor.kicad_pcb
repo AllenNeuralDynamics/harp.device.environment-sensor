@@ -2513,6 +2513,17 @@
 				(xyz 0 0 0)
 			)
 		)
+		(model "/home/poofjunior/projects/kicad_libraries/kicad-lib/kicad-lib.3dshapes/Same_Sky_SJ-3524-SMT-TR.step"
+			(offset
+				(xyz 0 6 2.57)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz -90 0 180)
+			)
+		)
 	)
 	(footprint "MountingHole:MountingHole_3.2mm_M3_DIN965"
 		(layer "F.Cu")
