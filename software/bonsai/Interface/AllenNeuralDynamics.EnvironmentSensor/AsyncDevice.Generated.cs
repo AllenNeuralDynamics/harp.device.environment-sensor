@@ -183,7 +183,7 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the register payload.
         /// </returns>
-        public async Task<EnableFlag> ReadEnableEventsAsync(CancellationToken cancellationToken = default)
+        public async Task<Events> ReadEnableEventsAsync(CancellationToken cancellationToken = default)
         {
             var reply = await CommandAsync(HarpCommand.ReadByte(EnableEvents.Address), cancellationToken);
             return EnableEvents.GetPayload(reply);
@@ -199,7 +199,7 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the timestamped register payload.
         /// </returns>
-        public async Task<Timestamped<EnableFlag>> ReadTimestampedEnableEventsAsync(CancellationToken cancellationToken = default)
+        public async Task<Timestamped<Events>> ReadTimestampedEnableEventsAsync(CancellationToken cancellationToken = default)
         {
             var reply = await CommandAsync(HarpCommand.ReadByte(EnableEvents.Address), cancellationToken);
             return EnableEvents.GetTimestampedPayload(reply);
@@ -213,7 +213,7 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
         /// </param>
         /// <returns>The task object representing the asynchronous write operation.</returns>
-        public async Task WriteEnableEventsAsync(EnableFlag value, CancellationToken cancellationToken = default)
+        public async Task WriteEnableEventsAsync(Events value, CancellationToken cancellationToken = default)
         {
             var request = EnableEvents.FromPayload(MessageType.Write, value);
             await CommandAsync(request, cancellationToken);

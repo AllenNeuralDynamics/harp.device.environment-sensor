@@ -588,9 +588,9 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the message payload.</returns>
-        public static EnableFlag GetPayload(HarpMessage message)
+        public static Events GetPayload(HarpMessage message)
         {
-            return (EnableFlag)message.GetPayloadByte();
+            return (Events)message.GetPayloadByte();
         }
 
         /// <summary>
@@ -598,10 +598,10 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the timestamped message payload.</returns>
-        public static Timestamped<EnableFlag> GetTimestampedPayload(HarpMessage message)
+        public static Timestamped<Events> GetTimestampedPayload(HarpMessage message)
         {
             var payload = message.GetTimestampedPayloadByte();
-            return Timestamped.Create((EnableFlag)payload.Value, payload.Seconds);
+            return Timestamped.Create((Events)payload.Value, payload.Seconds);
         }
 
         /// <summary>
@@ -613,7 +613,7 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// A <see cref="HarpMessage"/> object for the <see cref="EnableEvents"/> register
         /// with the specified message type and payload.
         /// </returns>
-        public static HarpMessage FromPayload(MessageType messageType, EnableFlag value)
+        public static HarpMessage FromPayload(MessageType messageType, Events value)
         {
             return HarpMessage.FromByte(Address, messageType, (byte)value);
         }
@@ -629,7 +629,7 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// A <see cref="HarpMessage"/> object for the <see cref="EnableEvents"/> register
         /// with the specified message type, timestamp, and payload.
         /// </returns>
-        public static HarpMessage FromPayload(double timestamp, MessageType messageType, EnableFlag value)
+        public static HarpMessage FromPayload(double timestamp, MessageType messageType, Events value)
         {
             return HarpMessage.FromByte(Address, timestamp, messageType, (byte)value);
         }
@@ -653,7 +653,7 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the timestamped message payload.</returns>
-        public static Timestamped<EnableFlag> GetPayload(HarpMessage message)
+        public static Timestamped<Events> GetPayload(HarpMessage message)
         {
             return EnableEvents.GetTimestampedPayload(message);
         }
@@ -936,13 +936,13 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// Gets or sets the value that enables (~2Hz) or disables the SensorData events.
         /// </summary>
         [Description("The value that enables (~2Hz) or disables the SensorData events.")]
-        public EnableFlag EnableEvents { get; set; }
+        public Events EnableEvents { get; set; }
 
         /// <summary>
         /// Creates a message payload for the EnableEvents register.
         /// </summary>
         /// <returns>The created message payload value.</returns>
-        public EnableFlag GetPayload()
+        public Events GetPayload()
         {
             return EnableEvents;
         }
@@ -1013,5 +1013,15 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// Humidity, in %RH
         /// </summary>
         public float Humidity;
+    }
+
+    /// <summary>
+    /// Available events on the device
+    /// </summary>
+    [Flags]
+    public enum Events : byte
+    {
+        Disable = 0x0,
+        SensorData = 0x1
     }
 }
