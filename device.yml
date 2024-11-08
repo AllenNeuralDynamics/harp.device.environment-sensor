@@ -1,28 +1,51 @@
 %YAML 1.1
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/harp-tech/reflex-generator/main/schema/device.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/harp-tech/protocol/main/schema/device.json
 device: EnvironmentSensor
 whoAmI: 1405
 firmwareVersion: "0.1"
 hardwareTargets: "0.1"
 registers:
   Pressure:
+    access: Read
     address: 32
     type: U32
     description: Pressure, in Pa
   Temperature:
+    access: Read
     address: 33
     type: Float
     description: Temperature in degrees C
   Humidity:
+    access: Read
     address: 34
     type: Float
     description: Humidity, in %RH
-  PressureTempHumidity:
+  SensorData:
+    access: Event
     address: 35
     type: Float
-    description: Aggregate of pressure, temp, humidity
-  EnableSensorDispatchEvents:
+    description: A periodic event will be emitted with aggregated data from all sensors.
+    length: 3
+    payloadSpec:
+      Pressure:
+        offset: 0
+        description: Pressure, in Pa
+      Temperature:
+        offset: 1
+        description: Temperature in degrees C
+      Humidity:
+        offset: 2
+        description: Humidity, in %RH
+  EnableEvents:
+    access: Write
     address: 36
     type: U8
-    description: Enables ~2Hz events
+    maskType: Events
+    description: Enables (~2Hz) or disables the SensorData events
+bitMasks:
+  Events:
+    bits:
+      Disable: 0x0
+      SensorData: 0x1
+    description: Available events on the device
