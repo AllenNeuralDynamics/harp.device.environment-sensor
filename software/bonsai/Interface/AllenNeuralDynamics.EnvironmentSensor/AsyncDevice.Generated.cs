@@ -142,7 +142,7 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         }
 
         /// <summary>
-        /// Asynchronously reads the contents of the PressureTempHumidity register.
+        /// Asynchronously reads the contents of the SensorData register.
         /// </summary>
         /// <param name="cancellationToken">
         /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
@@ -151,14 +151,14 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the register payload.
         /// </returns>
-        public async Task<float> ReadPressureTempHumidityAsync(CancellationToken cancellationToken = default)
+        public async Task<SensorDataPayload> ReadSensorDataAsync(CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadSingle(PressureTempHumidity.Address), cancellationToken);
-            return PressureTempHumidity.GetPayload(reply);
+            var reply = await CommandAsync(HarpCommand.ReadSingle(SensorData.Address), cancellationToken);
+            return SensorData.GetPayload(reply);
         }
 
         /// <summary>
-        /// Asynchronously reads the timestamped contents of the PressureTempHumidity register.
+        /// Asynchronously reads the timestamped contents of the SensorData register.
         /// </summary>
         /// <param name="cancellationToken">
         /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
@@ -167,14 +167,14 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the timestamped register payload.
         /// </returns>
-        public async Task<Timestamped<float>> ReadTimestampedPressureTempHumidityAsync(CancellationToken cancellationToken = default)
+        public async Task<Timestamped<SensorDataPayload>> ReadTimestampedSensorDataAsync(CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadSingle(PressureTempHumidity.Address), cancellationToken);
-            return PressureTempHumidity.GetTimestampedPayload(reply);
+            var reply = await CommandAsync(HarpCommand.ReadSingle(SensorData.Address), cancellationToken);
+            return SensorData.GetTimestampedPayload(reply);
         }
 
         /// <summary>
-        /// Asynchronously reads the contents of the EnableSensorDispatchEvents register.
+        /// Asynchronously reads the contents of the EnableEvents register.
         /// </summary>
         /// <param name="cancellationToken">
         /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
@@ -183,14 +183,14 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the register payload.
         /// </returns>
-        public async Task<byte> ReadEnableSensorDispatchEventsAsync(CancellationToken cancellationToken = default)
+        public async Task<EnableFlag> ReadEnableEventsAsync(CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadByte(EnableSensorDispatchEvents.Address), cancellationToken);
-            return EnableSensorDispatchEvents.GetPayload(reply);
+            var reply = await CommandAsync(HarpCommand.ReadByte(EnableEvents.Address), cancellationToken);
+            return EnableEvents.GetPayload(reply);
         }
 
         /// <summary>
-        /// Asynchronously reads the timestamped contents of the EnableSensorDispatchEvents register.
+        /// Asynchronously reads the timestamped contents of the EnableEvents register.
         /// </summary>
         /// <param name="cancellationToken">
         /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
@@ -199,23 +199,23 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the timestamped register payload.
         /// </returns>
-        public async Task<Timestamped<byte>> ReadTimestampedEnableSensorDispatchEventsAsync(CancellationToken cancellationToken = default)
+        public async Task<Timestamped<EnableFlag>> ReadTimestampedEnableEventsAsync(CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadByte(EnableSensorDispatchEvents.Address), cancellationToken);
-            return EnableSensorDispatchEvents.GetTimestampedPayload(reply);
+            var reply = await CommandAsync(HarpCommand.ReadByte(EnableEvents.Address), cancellationToken);
+            return EnableEvents.GetTimestampedPayload(reply);
         }
 
         /// <summary>
-        /// Asynchronously writes a value to the EnableSensorDispatchEvents register.
+        /// Asynchronously writes a value to the EnableEvents register.
         /// </summary>
         /// <param name="value">The value to be stored in the register.</param>
         /// <param name="cancellationToken">
         /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
         /// </param>
         /// <returns>The task object representing the asynchronous write operation.</returns>
-        public async Task WriteEnableSensorDispatchEventsAsync(byte value, CancellationToken cancellationToken = default)
+        public async Task WriteEnableEventsAsync(EnableFlag value, CancellationToken cancellationToken = default)
         {
-            var request = EnableSensorDispatchEvents.FromPayload(MessageType.Write, value);
+            var request = EnableEvents.FromPayload(MessageType.Write, value);
             await CommandAsync(request, cancellationToken);
         }
     }

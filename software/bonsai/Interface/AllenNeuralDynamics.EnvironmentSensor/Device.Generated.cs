@@ -40,8 +40,8 @@ namespace AllenNeuralDynamics.EnvironmentSensor
             { 32, typeof(Pressure) },
             { 33, typeof(Temperature) },
             { 34, typeof(Humidity) },
-            { 35, typeof(PressureTempHumidity) },
-            { 36, typeof(EnableSensorDispatchEvents) }
+            { 35, typeof(SensorData) },
+            { 36, typeof(EnableEvents) }
         };
     }
 
@@ -73,13 +73,13 @@ namespace AllenNeuralDynamics.EnvironmentSensor
     /// <seealso cref="Pressure"/>
     /// <seealso cref="Temperature"/>
     /// <seealso cref="Humidity"/>
-    /// <seealso cref="PressureTempHumidity"/>
-    /// <seealso cref="EnableSensorDispatchEvents"/>
+    /// <seealso cref="SensorData"/>
+    /// <seealso cref="EnableEvents"/>
     [XmlInclude(typeof(Pressure))]
     [XmlInclude(typeof(Temperature))]
     [XmlInclude(typeof(Humidity))]
-    [XmlInclude(typeof(PressureTempHumidity))]
-    [XmlInclude(typeof(EnableSensorDispatchEvents))]
+    [XmlInclude(typeof(SensorData))]
+    [XmlInclude(typeof(EnableEvents))]
     [Description("Filters register-specific messages reported by the EnvironmentSensor device.")]
     public class FilterRegister : FilterRegisterBuilder, INamedElement
     {
@@ -104,18 +104,18 @@ namespace AllenNeuralDynamics.EnvironmentSensor
     /// <seealso cref="Pressure"/>
     /// <seealso cref="Temperature"/>
     /// <seealso cref="Humidity"/>
-    /// <seealso cref="PressureTempHumidity"/>
-    /// <seealso cref="EnableSensorDispatchEvents"/>
+    /// <seealso cref="SensorData"/>
+    /// <seealso cref="EnableEvents"/>
     [XmlInclude(typeof(Pressure))]
     [XmlInclude(typeof(Temperature))]
     [XmlInclude(typeof(Humidity))]
-    [XmlInclude(typeof(PressureTempHumidity))]
-    [XmlInclude(typeof(EnableSensorDispatchEvents))]
+    [XmlInclude(typeof(SensorData))]
+    [XmlInclude(typeof(EnableEvents))]
     [XmlInclude(typeof(TimestampedPressure))]
     [XmlInclude(typeof(TimestampedTemperature))]
     [XmlInclude(typeof(TimestampedHumidity))]
-    [XmlInclude(typeof(TimestampedPressureTempHumidity))]
-    [XmlInclude(typeof(TimestampedEnableSensorDispatchEvents))]
+    [XmlInclude(typeof(TimestampedSensorData))]
+    [XmlInclude(typeof(TimestampedEnableEvents))]
     [Description("Filters and selects specific messages reported by the EnvironmentSensor device.")]
     public partial class Parse : ParseBuilder, INamedElement
     {
@@ -137,13 +137,13 @@ namespace AllenNeuralDynamics.EnvironmentSensor
     /// <seealso cref="Pressure"/>
     /// <seealso cref="Temperature"/>
     /// <seealso cref="Humidity"/>
-    /// <seealso cref="PressureTempHumidity"/>
-    /// <seealso cref="EnableSensorDispatchEvents"/>
+    /// <seealso cref="SensorData"/>
+    /// <seealso cref="EnableEvents"/>
     [XmlInclude(typeof(Pressure))]
     [XmlInclude(typeof(Temperature))]
     [XmlInclude(typeof(Humidity))]
-    [XmlInclude(typeof(PressureTempHumidity))]
-    [XmlInclude(typeof(EnableSensorDispatchEvents))]
+    [XmlInclude(typeof(SensorData))]
+    [XmlInclude(typeof(EnableEvents))]
     [Description("Formats a sequence of values as specific EnvironmentSensor register messages.")]
     public partial class Format : FormatBuilder, INamedElement
     {
@@ -447,194 +447,215 @@ namespace AllenNeuralDynamics.EnvironmentSensor
     }
 
     /// <summary>
-    /// Represents a register that aggregate of pressure, temp, humidity.
+    /// Represents a register that a periodic event will be emitted with aggregated data from all sensors.
     /// </summary>
-    [Description("Aggregate of pressure, temp, humidity")]
-    public partial class PressureTempHumidity
+    [Description("A periodic event will be emitted with aggregated data from all sensors.")]
+    public partial class SensorData
     {
         /// <summary>
-        /// Represents the address of the <see cref="PressureTempHumidity"/> register. This field is constant.
+        /// Represents the address of the <see cref="SensorData"/> register. This field is constant.
         /// </summary>
         public const int Address = 35;
 
         /// <summary>
-        /// Represents the payload type of the <see cref="PressureTempHumidity"/> register. This field is constant.
+        /// Represents the payload type of the <see cref="SensorData"/> register. This field is constant.
         /// </summary>
         public const PayloadType RegisterType = PayloadType.Float;
 
         /// <summary>
-        /// Represents the length of the <see cref="PressureTempHumidity"/> register. This field is constant.
+        /// Represents the length of the <see cref="SensorData"/> register. This field is constant.
         /// </summary>
-        public const int RegisterLength = 1;
+        public const int RegisterLength = 3;
+
+        static SensorDataPayload ParsePayload(float[] payload)
+        {
+            SensorDataPayload result;
+            result.Pressure = payload[0];
+            result.Temperature = payload[1];
+            result.Humidity = payload[2];
+            return result;
+        }
+
+        static float[] FormatPayload(SensorDataPayload value)
+        {
+            float[] result;
+            result = new float[3];
+            result[0] = value.Pressure;
+            result[1] = value.Temperature;
+            result[2] = value.Humidity;
+            return result;
+        }
 
         /// <summary>
-        /// Returns the payload data for <see cref="PressureTempHumidity"/> register messages.
+        /// Returns the payload data for <see cref="SensorData"/> register messages.
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the message payload.</returns>
-        public static float GetPayload(HarpMessage message)
+        public static SensorDataPayload GetPayload(HarpMessage message)
         {
-            return message.GetPayloadSingle();
+            return ParsePayload(message.GetPayloadArray<float>());
         }
 
         /// <summary>
-        /// Returns the timestamped payload data for <see cref="PressureTempHumidity"/> register messages.
+        /// Returns the timestamped payload data for <see cref="SensorData"/> register messages.
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the timestamped message payload.</returns>
-        public static Timestamped<float> GetTimestampedPayload(HarpMessage message)
+        public static Timestamped<SensorDataPayload> GetTimestampedPayload(HarpMessage message)
         {
-            return message.GetTimestampedPayloadSingle();
+            var payload = message.GetTimestampedPayloadArray<float>();
+            return Timestamped.Create(ParsePayload(payload.Value), payload.Seconds);
         }
 
         /// <summary>
-        /// Returns a Harp message for the <see cref="PressureTempHumidity"/> register.
+        /// Returns a Harp message for the <see cref="SensorData"/> register.
         /// </summary>
         /// <param name="messageType">The type of the Harp message.</param>
         /// <param name="value">The value to be stored in the message payload.</param>
         /// <returns>
-        /// A <see cref="HarpMessage"/> object for the <see cref="PressureTempHumidity"/> register
+        /// A <see cref="HarpMessage"/> object for the <see cref="SensorData"/> register
         /// with the specified message type and payload.
         /// </returns>
-        public static HarpMessage FromPayload(MessageType messageType, float value)
+        public static HarpMessage FromPayload(MessageType messageType, SensorDataPayload value)
         {
-            return HarpMessage.FromSingle(Address, messageType, value);
+            return HarpMessage.FromSingle(Address, messageType, FormatPayload(value));
         }
 
         /// <summary>
-        /// Returns a timestamped Harp message for the <see cref="PressureTempHumidity"/>
+        /// Returns a timestamped Harp message for the <see cref="SensorData"/>
         /// register.
         /// </summary>
         /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
         /// <param name="messageType">The type of the Harp message.</param>
         /// <param name="value">The value to be stored in the message payload.</param>
         /// <returns>
-        /// A <see cref="HarpMessage"/> object for the <see cref="PressureTempHumidity"/> register
+        /// A <see cref="HarpMessage"/> object for the <see cref="SensorData"/> register
         /// with the specified message type, timestamp, and payload.
         /// </returns>
-        public static HarpMessage FromPayload(double timestamp, MessageType messageType, float value)
+        public static HarpMessage FromPayload(double timestamp, MessageType messageType, SensorDataPayload value)
         {
-            return HarpMessage.FromSingle(Address, timestamp, messageType, value);
+            return HarpMessage.FromSingle(Address, timestamp, messageType, FormatPayload(value));
         }
     }
 
     /// <summary>
     /// Provides methods for manipulating timestamped messages from the
-    /// PressureTempHumidity register.
+    /// SensorData register.
     /// </summary>
-    /// <seealso cref="PressureTempHumidity"/>
-    [Description("Filters and selects timestamped messages from the PressureTempHumidity register.")]
-    public partial class TimestampedPressureTempHumidity
+    /// <seealso cref="SensorData"/>
+    [Description("Filters and selects timestamped messages from the SensorData register.")]
+    public partial class TimestampedSensorData
     {
         /// <summary>
-        /// Represents the address of the <see cref="PressureTempHumidity"/> register. This field is constant.
+        /// Represents the address of the <see cref="SensorData"/> register. This field is constant.
         /// </summary>
-        public const int Address = PressureTempHumidity.Address;
+        public const int Address = SensorData.Address;
 
         /// <summary>
-        /// Returns timestamped payload data for <see cref="PressureTempHumidity"/> register messages.
+        /// Returns timestamped payload data for <see cref="SensorData"/> register messages.
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the timestamped message payload.</returns>
-        public static Timestamped<float> GetPayload(HarpMessage message)
+        public static Timestamped<SensorDataPayload> GetPayload(HarpMessage message)
         {
-            return PressureTempHumidity.GetTimestampedPayload(message);
+            return SensorData.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents a register that enables ~2Hz events.
+    /// Represents a register that enables (~2Hz) or disables the SensorData events.
     /// </summary>
-    [Description("Enables ~2Hz events")]
-    public partial class EnableSensorDispatchEvents
+    [Description("Enables (~2Hz) or disables the SensorData events")]
+    public partial class EnableEvents
     {
         /// <summary>
-        /// Represents the address of the <see cref="EnableSensorDispatchEvents"/> register. This field is constant.
+        /// Represents the address of the <see cref="EnableEvents"/> register. This field is constant.
         /// </summary>
         public const int Address = 36;
 
         /// <summary>
-        /// Represents the payload type of the <see cref="EnableSensorDispatchEvents"/> register. This field is constant.
+        /// Represents the payload type of the <see cref="EnableEvents"/> register. This field is constant.
         /// </summary>
         public const PayloadType RegisterType = PayloadType.U8;
 
         /// <summary>
-        /// Represents the length of the <see cref="EnableSensorDispatchEvents"/> register. This field is constant.
+        /// Represents the length of the <see cref="EnableEvents"/> register. This field is constant.
         /// </summary>
         public const int RegisterLength = 1;
 
         /// <summary>
-        /// Returns the payload data for <see cref="EnableSensorDispatchEvents"/> register messages.
+        /// Returns the payload data for <see cref="EnableEvents"/> register messages.
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the message payload.</returns>
-        public static byte GetPayload(HarpMessage message)
+        public static EnableFlag GetPayload(HarpMessage message)
         {
-            return message.GetPayloadByte();
+            return (EnableFlag)message.GetPayloadByte();
         }
 
         /// <summary>
-        /// Returns the timestamped payload data for <see cref="EnableSensorDispatchEvents"/> register messages.
+        /// Returns the timestamped payload data for <see cref="EnableEvents"/> register messages.
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the timestamped message payload.</returns>
-        public static Timestamped<byte> GetTimestampedPayload(HarpMessage message)
+        public static Timestamped<EnableFlag> GetTimestampedPayload(HarpMessage message)
         {
-            return message.GetTimestampedPayloadByte();
+            var payload = message.GetTimestampedPayloadByte();
+            return Timestamped.Create((EnableFlag)payload.Value, payload.Seconds);
         }
 
         /// <summary>
-        /// Returns a Harp message for the <see cref="EnableSensorDispatchEvents"/> register.
+        /// Returns a Harp message for the <see cref="EnableEvents"/> register.
         /// </summary>
         /// <param name="messageType">The type of the Harp message.</param>
         /// <param name="value">The value to be stored in the message payload.</param>
         /// <returns>
-        /// A <see cref="HarpMessage"/> object for the <see cref="EnableSensorDispatchEvents"/> register
+        /// A <see cref="HarpMessage"/> object for the <see cref="EnableEvents"/> register
         /// with the specified message type and payload.
         /// </returns>
-        public static HarpMessage FromPayload(MessageType messageType, byte value)
+        public static HarpMessage FromPayload(MessageType messageType, EnableFlag value)
         {
-            return HarpMessage.FromByte(Address, messageType, value);
+            return HarpMessage.FromByte(Address, messageType, (byte)value);
         }
 
         /// <summary>
-        /// Returns a timestamped Harp message for the <see cref="EnableSensorDispatchEvents"/>
+        /// Returns a timestamped Harp message for the <see cref="EnableEvents"/>
         /// register.
         /// </summary>
         /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
         /// <param name="messageType">The type of the Harp message.</param>
         /// <param name="value">The value to be stored in the message payload.</param>
         /// <returns>
-        /// A <see cref="HarpMessage"/> object for the <see cref="EnableSensorDispatchEvents"/> register
+        /// A <see cref="HarpMessage"/> object for the <see cref="EnableEvents"/> register
         /// with the specified message type, timestamp, and payload.
         /// </returns>
-        public static HarpMessage FromPayload(double timestamp, MessageType messageType, byte value)
+        public static HarpMessage FromPayload(double timestamp, MessageType messageType, EnableFlag value)
         {
-            return HarpMessage.FromByte(Address, timestamp, messageType, value);
+            return HarpMessage.FromByte(Address, timestamp, messageType, (byte)value);
         }
     }
 
     /// <summary>
     /// Provides methods for manipulating timestamped messages from the
-    /// EnableSensorDispatchEvents register.
+    /// EnableEvents register.
     /// </summary>
-    /// <seealso cref="EnableSensorDispatchEvents"/>
-    [Description("Filters and selects timestamped messages from the EnableSensorDispatchEvents register.")]
-    public partial class TimestampedEnableSensorDispatchEvents
+    /// <seealso cref="EnableEvents"/>
+    [Description("Filters and selects timestamped messages from the EnableEvents register.")]
+    public partial class TimestampedEnableEvents
     {
         /// <summary>
-        /// Represents the address of the <see cref="EnableSensorDispatchEvents"/> register. This field is constant.
+        /// Represents the address of the <see cref="EnableEvents"/> register. This field is constant.
         /// </summary>
-        public const int Address = EnableSensorDispatchEvents.Address;
+        public const int Address = EnableEvents.Address;
 
         /// <summary>
-        /// Returns timestamped payload data for <see cref="EnableSensorDispatchEvents"/> register messages.
+        /// Returns timestamped payload data for <see cref="EnableEvents"/> register messages.
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the timestamped message payload.</returns>
-        public static Timestamped<byte> GetPayload(HarpMessage message)
+        public static Timestamped<EnableFlag> GetPayload(HarpMessage message)
         {
-            return EnableSensorDispatchEvents.GetTimestampedPayload(message);
+            return EnableEvents.GetTimestampedPayload(message);
         }
     }
 
@@ -645,18 +666,18 @@ namespace AllenNeuralDynamics.EnvironmentSensor
     /// <seealso cref="CreatePressurePayload"/>
     /// <seealso cref="CreateTemperaturePayload"/>
     /// <seealso cref="CreateHumidityPayload"/>
-    /// <seealso cref="CreatePressureTempHumidityPayload"/>
-    /// <seealso cref="CreateEnableSensorDispatchEventsPayload"/>
+    /// <seealso cref="CreateSensorDataPayload"/>
+    /// <seealso cref="CreateEnableEventsPayload"/>
     [XmlInclude(typeof(CreatePressurePayload))]
     [XmlInclude(typeof(CreateTemperaturePayload))]
     [XmlInclude(typeof(CreateHumidityPayload))]
-    [XmlInclude(typeof(CreatePressureTempHumidityPayload))]
-    [XmlInclude(typeof(CreateEnableSensorDispatchEventsPayload))]
+    [XmlInclude(typeof(CreateSensorDataPayload))]
+    [XmlInclude(typeof(CreateEnableEventsPayload))]
     [XmlInclude(typeof(CreateTimestampedPressurePayload))]
     [XmlInclude(typeof(CreateTimestampedTemperaturePayload))]
     [XmlInclude(typeof(CreateTimestampedHumidityPayload))]
-    [XmlInclude(typeof(CreateTimestampedPressureTempHumidityPayload))]
-    [XmlInclude(typeof(CreateTimestampedEnableSensorDispatchEventsPayload))]
+    [XmlInclude(typeof(CreateTimestampedSensorDataPayload))]
+    [XmlInclude(typeof(CreateTimestampedEnableEventsPayload))]
     [Description("Creates standard message payloads for the EnvironmentSensor device.")]
     public partial class CreateMessage : CreateMessageBuilder, INamedElement
     {
@@ -835,109 +856,162 @@ namespace AllenNeuralDynamics.EnvironmentSensor
 
     /// <summary>
     /// Represents an operator that creates a message payload
-    /// that aggregate of pressure, temp, humidity.
+    /// that a periodic event will be emitted with aggregated data from all sensors.
     /// </summary>
-    [DisplayName("PressureTempHumidityPayload")]
-    [Description("Creates a message payload that aggregate of pressure, temp, humidity.")]
-    public partial class CreatePressureTempHumidityPayload
+    [DisplayName("SensorDataPayload")]
+    [Description("Creates a message payload that a periodic event will be emitted with aggregated data from all sensors.")]
+    public partial class CreateSensorDataPayload
     {
         /// <summary>
-        /// Gets or sets the value that aggregate of pressure, temp, humidity.
+        /// Gets or sets a value that pressure, in Pa.
         /// </summary>
-        [Description("The value that aggregate of pressure, temp, humidity.")]
-        public float PressureTempHumidity { get; set; }
+        [Description("Pressure, in Pa")]
+        public float Pressure { get; set; }
 
         /// <summary>
-        /// Creates a message payload for the PressureTempHumidity register.
+        /// Gets or sets a value that temperature in degrees C.
+        /// </summary>
+        [Description("Temperature in degrees C")]
+        public float Temperature { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value that humidity, in %RH.
+        /// </summary>
+        [Description("Humidity, in %RH")]
+        public float Humidity { get; set; }
+
+        /// <summary>
+        /// Creates a message payload for the SensorData register.
         /// </summary>
         /// <returns>The created message payload value.</returns>
-        public float GetPayload()
+        public SensorDataPayload GetPayload()
         {
-            return PressureTempHumidity;
+            SensorDataPayload value;
+            value.Pressure = Pressure;
+            value.Temperature = Temperature;
+            value.Humidity = Humidity;
+            return value;
         }
 
         /// <summary>
-        /// Creates a message that aggregate of pressure, temp, humidity.
+        /// Creates a message that a periodic event will be emitted with aggregated data from all sensors.
         /// </summary>
         /// <param name="messageType">Specifies the type of the created message.</param>
-        /// <returns>A new message for the PressureTempHumidity register.</returns>
+        /// <returns>A new message for the SensorData register.</returns>
         public HarpMessage GetMessage(MessageType messageType)
         {
-            return AllenNeuralDynamics.EnvironmentSensor.PressureTempHumidity.FromPayload(messageType, GetPayload());
+            return AllenNeuralDynamics.EnvironmentSensor.SensorData.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
     /// Represents an operator that creates a timestamped message payload
-    /// that aggregate of pressure, temp, humidity.
+    /// that a periodic event will be emitted with aggregated data from all sensors.
     /// </summary>
-    [DisplayName("TimestampedPressureTempHumidityPayload")]
-    [Description("Creates a timestamped message payload that aggregate of pressure, temp, humidity.")]
-    public partial class CreateTimestampedPressureTempHumidityPayload : CreatePressureTempHumidityPayload
+    [DisplayName("TimestampedSensorDataPayload")]
+    [Description("Creates a timestamped message payload that a periodic event will be emitted with aggregated data from all sensors.")]
+    public partial class CreateTimestampedSensorDataPayload : CreateSensorDataPayload
     {
         /// <summary>
-        /// Creates a timestamped message that aggregate of pressure, temp, humidity.
+        /// Creates a timestamped message that a periodic event will be emitted with aggregated data from all sensors.
         /// </summary>
         /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
         /// <param name="messageType">Specifies the type of the created message.</param>
-        /// <returns>A new timestamped message for the PressureTempHumidity register.</returns>
+        /// <returns>A new timestamped message for the SensorData register.</returns>
         public HarpMessage GetMessage(double timestamp, MessageType messageType)
         {
-            return AllenNeuralDynamics.EnvironmentSensor.PressureTempHumidity.FromPayload(timestamp, messageType, GetPayload());
+            return AllenNeuralDynamics.EnvironmentSensor.SensorData.FromPayload(timestamp, messageType, GetPayload());
         }
     }
 
     /// <summary>
     /// Represents an operator that creates a message payload
-    /// that enables ~2Hz events.
+    /// that enables (~2Hz) or disables the SensorData events.
     /// </summary>
-    [DisplayName("EnableSensorDispatchEventsPayload")]
-    [Description("Creates a message payload that enables ~2Hz events.")]
-    public partial class CreateEnableSensorDispatchEventsPayload
+    [DisplayName("EnableEventsPayload")]
+    [Description("Creates a message payload that enables (~2Hz) or disables the SensorData events.")]
+    public partial class CreateEnableEventsPayload
     {
         /// <summary>
-        /// Gets or sets the value that enables ~2Hz events.
+        /// Gets or sets the value that enables (~2Hz) or disables the SensorData events.
         /// </summary>
-        [Description("The value that enables ~2Hz events.")]
-        public byte EnableSensorDispatchEvents { get; set; }
+        [Description("The value that enables (~2Hz) or disables the SensorData events.")]
+        public EnableFlag EnableEvents { get; set; }
 
         /// <summary>
-        /// Creates a message payload for the EnableSensorDispatchEvents register.
+        /// Creates a message payload for the EnableEvents register.
         /// </summary>
         /// <returns>The created message payload value.</returns>
-        public byte GetPayload()
+        public EnableFlag GetPayload()
         {
-            return EnableSensorDispatchEvents;
+            return EnableEvents;
         }
 
         /// <summary>
-        /// Creates a message that enables ~2Hz events.
+        /// Creates a message that enables (~2Hz) or disables the SensorData events.
         /// </summary>
         /// <param name="messageType">Specifies the type of the created message.</param>
-        /// <returns>A new message for the EnableSensorDispatchEvents register.</returns>
+        /// <returns>A new message for the EnableEvents register.</returns>
         public HarpMessage GetMessage(MessageType messageType)
         {
-            return AllenNeuralDynamics.EnvironmentSensor.EnableSensorDispatchEvents.FromPayload(messageType, GetPayload());
+            return AllenNeuralDynamics.EnvironmentSensor.EnableEvents.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
     /// Represents an operator that creates a timestamped message payload
-    /// that enables ~2Hz events.
+    /// that enables (~2Hz) or disables the SensorData events.
     /// </summary>
-    [DisplayName("TimestampedEnableSensorDispatchEventsPayload")]
-    [Description("Creates a timestamped message payload that enables ~2Hz events.")]
-    public partial class CreateTimestampedEnableSensorDispatchEventsPayload : CreateEnableSensorDispatchEventsPayload
+    [DisplayName("TimestampedEnableEventsPayload")]
+    [Description("Creates a timestamped message payload that enables (~2Hz) or disables the SensorData events.")]
+    public partial class CreateTimestampedEnableEventsPayload : CreateEnableEventsPayload
     {
         /// <summary>
-        /// Creates a timestamped message that enables ~2Hz events.
+        /// Creates a timestamped message that enables (~2Hz) or disables the SensorData events.
         /// </summary>
         /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
         /// <param name="messageType">Specifies the type of the created message.</param>
-        /// <returns>A new timestamped message for the EnableSensorDispatchEvents register.</returns>
+        /// <returns>A new timestamped message for the EnableEvents register.</returns>
         public HarpMessage GetMessage(double timestamp, MessageType messageType)
         {
-            return AllenNeuralDynamics.EnvironmentSensor.EnableSensorDispatchEvents.FromPayload(timestamp, messageType, GetPayload());
+            return AllenNeuralDynamics.EnvironmentSensor.EnableEvents.FromPayload(timestamp, messageType, GetPayload());
         }
+    }
+
+    /// <summary>
+    /// Represents the payload of the SensorData register.
+    /// </summary>
+    public struct SensorDataPayload
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SensorDataPayload"/> structure.
+        /// </summary>
+        /// <param name="pressure">Pressure, in Pa</param>
+        /// <param name="temperature">Temperature in degrees C</param>
+        /// <param name="humidity">Humidity, in %RH</param>
+        public SensorDataPayload(
+            float pressure,
+            float temperature,
+            float humidity)
+        {
+            Pressure = pressure;
+            Temperature = temperature;
+            Humidity = humidity;
+        }
+
+        /// <summary>
+        /// Pressure, in Pa
+        /// </summary>
+        public float Pressure;
+
+        /// <summary>
+        /// Temperature in degrees C
+        /// </summary>
+        public float Temperature;
+
+        /// <summary>
+        /// Humidity, in %RH
+        /// </summary>
+        public float Humidity;
     }
 }
