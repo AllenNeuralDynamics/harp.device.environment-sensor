@@ -1,4 +1,4 @@
-using Bonsai;
+﻿using Bonsai;
 using Bonsai.Harp;
 using System;
 using System.Collections.Generic;
@@ -43,6 +43,41 @@ namespace AllenNeuralDynamics.EnvironmentSensor
             { 35, typeof(SensorData) },
             { 36, typeof(EnableEvents) }
         };
+
+        /// <summary>
+        /// Gets the contents of the metadata file describing the <see cref="EnvironmentSensor"/>
+        /// device registers.
+        /// </summary>
+        public static readonly string Metadata = GetDeviceMetadata();
+
+        static string GetDeviceMetadata()
+        {
+            var deviceType = typeof(Device);
+            using var metadataStream = deviceType.Assembly.GetManifestResourceStream($"{deviceType.Namespace}.device.yml");
+            using var streamReader = new System.IO.StreamReader(metadataStream);
+            return streamReader.ReadToEnd();
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that returns the contents of the metadata file
+    /// describing the <see cref="EnvironmentSensor"/> device registers.
+    /// </summary>
+    [Description("Returns the contents of the metadata file describing the EnvironmentSensor device registers.")]
+    public partial class GetMetadata : Source<string>
+    {
+        /// <summary>
+        /// Returns an observable sequence with the contents of the metadata file
+        /// describing the <see cref="EnvironmentSensor"/> device registers.
+        /// </summary>
+        /// <returns>
+        /// A sequence with a single <see cref="string"/> object representing the
+        /// contents of the metadata file.
+        /// </returns>
+        public override IObservable<string> Generate()
+        {
+            return Observable.Return(Device.Metadata);
+        }
     }
 
     /// <summary>
@@ -1013,6 +1048,23 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         /// Humidity, in %RH
         /// </summary>
         public float Humidity;
+
+        /// <summary>
+        /// Returns a <see cref="string"/> that represents the payload of
+        /// the SensorData register.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="string"/> that represents the payload of the
+        /// SensorData register.
+        /// </returns>
+        public override string ToString()
+        {
+            return "SensorDataPayload { " +
+                "Pressure = " + Pressure + ", " +
+                "Temperature = " + Temperature + ", " +
+                "Humidity = " + Humidity + " " +
+            "}";
+        }
     }
 
     /// <summary>
