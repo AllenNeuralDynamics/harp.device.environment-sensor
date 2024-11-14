@@ -18,7 +18,7 @@ dynamic = ["version"]
 
 dependencies = [
     'pyyaml',
-    'pyharp',
+    'pyharp@git+https://github.com/AllenNeuralDynamics/pyharp.git@368e346dd66c17516974a339a0cf3f4807c02874',
     'pyserial',
 ]
 
