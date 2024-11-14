@@ -6,6 +6,8 @@ Contains a small package to interface with the environment sensor device, and a 
 
 `pip install "git+https://github.com/AllenNeuralDynamics/harp.device.environment-sensor.git@feat-add-python-script#egg=harp_env_sensor&subdirectory=software/python"`
 
+If you're on a SIPE computer with the default pip environment variables set to the devpi server, you'll need to add `-i https://pypi.org/simple` after the pip install above.
+
 ## Usage
 
 CLI Arguments:
