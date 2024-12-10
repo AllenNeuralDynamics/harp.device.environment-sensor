@@ -76,7 +76,7 @@ def read_once(device: EnvSensorDevice) -> tuple[float, float, float]:
     return pressure, temp, humidity
 
 
-def read_continuously(device: EnvSensorDevice, file: Optional[Path] = None):
+def read_continuously(device: EnvSensorDevice, file: Optional[Path] = None,update_interval_s:float = 1.5):
     with contextlib.ExitStack() as stack:
         f = stack.enter_context(open(file, "w")) if file is not None else None
         if f is not None:
@@ -86,7 +86,7 @@ def read_continuously(device: EnvSensorDevice, file: Optional[Path] = None):
             press, temp, hum = read_once(device)
             if f is not None:
                 f.write(f"{time.time()}, {press}, {temp}, {hum}\n")
-            time.sleep(1.5)
+            time.sleep(update_interval_s)
 
 
 def read_events(device: EnvSensorDevice, file: Optional[Path] = None):
@@ -116,6 +116,7 @@ def cli() -> argparse.Namespace:
     parser.add_argument("--comport", type=str, help="Serial port where the device is connected", default=None)
     parser.add_argument("--file", type=os.path.abspath)
     parser.add_argument("--mode", choices=["single", "continuous", "events"], default="single")
+    parser.add_argument("--update_interval_s", type=float, default=1.5)
     args = parser.parse_args(sys.argv[1:])
 
     return args
@@ -151,6 +152,6 @@ if __name__ == "__main__":
     if args.mode == "single":
         read_once(device)
     elif args.mode == "continuous":
-        read_continuously(device, args.file)
+        read_continuously(device, args.file, args.update_interval_s)
     elif args.mode == "events":
         read_events(device, args.file)
