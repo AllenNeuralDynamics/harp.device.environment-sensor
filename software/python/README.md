@@ -15,9 +15,10 @@ CLI Arguments:
 - `--mode` Read mode
     - `single`: Takes one reading, prints it to terminal, and exits
     - `events`: Polls events as they come in and print to terminal and file if provided
-    - `continuous`: Reads registers every 1.5 seconds and print to terminal and file if provided
+    - `continuous`: Reads registers every <update_interval_s> seconds and print to terminal and file if provided
 - `--file` Path to file to write output to. Optional.
 - `--device-yaml` Path to device yaml file. Optional, defaults to hardcoded values
+- `--update_interval_s` If in continuous mode, read registers with this period. Optional, defaults 1.5
 
 Examples:
 
@@ -28,3 +29,7 @@ Examples:
 - Read the registers regularly and print to terminal
 
     `python -m harp_env_sensor.main --comport COM8 --mode continuous`
+  
+- Read the registers every 5 s and print to terminal
+
+    `python -m harp_env_sensor.main --comport COM8 --mode continuous --update_interval_s 5`
