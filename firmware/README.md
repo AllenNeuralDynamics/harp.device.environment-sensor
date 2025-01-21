@@ -40,6 +40,11 @@ cmake -DPICO_SDK_PATH=/path/to/pico-sdk ..
 ````
 After this point, you can invoke the auto-generated Makefile with `make`
 
+### Windows Setup
+You can setup to build and develop in Windows following this Youtube video: [https://www.youtube.com/watch?v=mUF9xjDtFfY&t=55s](https://youtu.be/mUF9xjDtFfY?si=asksEjIwjh2tZ_xI)
+Key takeaways:
+Install ARM GCC Compiler, CMake, Build Tools for Visual Studio, Python 3, Git, and Visual Studio Code. Make sure all your paths are set as environment variables, especially PICO_SDK_PATH. You can continue to build in developer console after CMake -G "NMake Makefiles" .. with nmake or you can setup to build from Visual Studio Code.
+
 ## Flashing the Firmware
 Press-and-hold the Pico's BOOTSEL button and power it up (i.e: plug it into usb).
 At this point you do one of the following:
