@@ -141,8 +141,8 @@ HarpCApp& app = HarpCApp::init(who_am_i, hw_version_major, hw_version_minor,
 int main()
 {
  
-
-// Init Synchronizer.
+    configure_clock();
+    // Init Synchronizer.
     HarpSynchronizer& sync = HarpSynchronizer::init(HARP_SYNC_UART_ID,
                                                     HARP_SYNC_RX_PIN);
     // app.set_visual_indicators_fn(set_led_state);
