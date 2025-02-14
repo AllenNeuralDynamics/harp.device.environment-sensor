@@ -23,25 +23,29 @@ class EnvSensorDevice(Device):
         """
         self.config = config
 
-        # Create directory for dump_file if it doesn't already exist
-        dump_file_path = config["dump_file_path"]
-        if not os.path.exists(dump_file_path):
-            os.makedirs(dump_file_path)
+        dump_file_folder = config.get("dump_file_path")
+        if dump_file_folder is not None:
+            # Create directory for dump_file if it doesn't already exist
+            if not os.path.exists(dump_file_folder):
+                os.makedirs(dump_file_folder)
+            dump_file_path = dump_file_folder + dump_file
+        else:
+            dump_file_path = None
 
         self.config["device_configuration"]["whoAmI"]
 
         # Automatically read com ports if one is not given
         if not com_port:
             for port in list_ports.comports():
-                if port.pid == 24577:  # All harp devices have the same PID
+                if port.pid == 24577:  # All harp devices have the same PID ------ No they do not...
                     com_port = port.device
-                    super().__init__(com_port, dump_file_path + dump_file)
+                    super().__init__(com_port, dump_file_path)
                     if self.WHO_AM_I == self.config["device_configuration"]["whoAmI"]:
                         break
                     else:
                         self.disconnect()
         else:
-            super().__init__(com_port, dump_file_path + dump_file)
+            super().__init__(com_port, dump_file_path)
 
         logging.info(f"Connected to {com_port}, device id: {self.WHO_AM_I}")
 
