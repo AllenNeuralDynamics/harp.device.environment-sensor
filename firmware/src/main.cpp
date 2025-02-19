@@ -9,6 +9,16 @@
 #include <reg_types.h>
 #include "core1_sensor.h"
 
+#include "hardware/pll.h"
+#include "hardware/clocks.h"
+#include "hardware/structs/pll.h"
+#include "hardware/structs/clocks.h"
+
+#define SYS_CLOCK_SPEED_MHZ (12)
+#define TEMPERATURE_OFFSET_C (-5.49f)
+
+static void configure_clock();
+
 // Create device name array.
 const uint16_t who_am_i = ENV_SENSOR_DEVICE_ID;
 const uint8_t hw_version_major = HW_VERSION_MAJOR;
@@ -40,8 +50,8 @@ queue_t cmd_queue;
 //////// Harp stuff
 
 // Harp App Register Setup.
-const size_t reg_count = 5;
-
+const size_t reg_count = 6;
+ 
 // Define register contents.
 #pragma pack(push, 1)
 struct app_regs_t
@@ -51,6 +61,7 @@ struct app_regs_t
     float humidity_prh;         // app register 2
     float pressure_temp_humidity[3];
     uint8_t enable_sensor_dispatch_events;
+    float temperature_offset_c;
 } app_regs;
 #pragma pack(pop)
 
@@ -61,7 +72,8 @@ RegSpecs app_reg_specs[reg_count]
     {(uint8_t*)&app_regs.temperature_c, sizeof(app_regs.temperature_c), Float},
     {(uint8_t*)&app_regs.humidity_prh, sizeof(app_regs.humidity_prh), Float},
     {(uint8_t*)&app_regs.pressure_temp_humidity, sizeof(app_regs.pressure_temp_humidity), Float},
-    {(uint8_t*)&app_regs.enable_sensor_dispatch_events, sizeof(app_regs.enable_sensor_dispatch_events), U8}
+    {(uint8_t*)&app_regs.enable_sensor_dispatch_events, sizeof(app_regs.enable_sensor_dispatch_events), U8},
+    {(uint8_t*)&app_regs.temperature_offset_c, sizeof(app_regs.temperature_offset_c), Float}
 };
 
 // Define register read-and-write handler functions.
@@ -71,7 +83,7 @@ RegFnPair reg_handler_fns[reg_count]
     {&HarpCore::read_reg_generic, &HarpCore::write_to_read_only_reg_error},
     {&HarpCore::read_reg_generic, &HarpCore::write_to_read_only_reg_error},
     {&HarpCore::read_reg_generic, &HarpCore::write_to_read_only_reg_error},
-    {&HarpCore::read_reg_generic, &HarpCore::write_reg_generic},
+    {&HarpCore::read_reg_generic, &HarpCore::write_to_read_only_reg_error}
 };
 
 void app_reset()
@@ -82,6 +94,7 @@ void app_reset()
     app_regs.pressure_temp_humidity[0] = 0;
     app_regs.pressure_temp_humidity[1] = 0;
     app_regs.pressure_temp_humidity[2] = 0;
+    app_regs.temperature_offset_c = TEMPERATURE_OFFSET_C;
 
     app_regs.enable_sensor_dispatch_events = 1;
 
@@ -96,6 +109,8 @@ void update_app_state()
         sensor_data_t data;
         queue_remove_blocking(&sensor_queue, &data);
 
+        data.temperature_c += TEMPERATURE_OFFSET_C;
+
         app_regs.pressure_pa = data.pressure_pa;
         app_regs.temperature_c = data.temperature_c;
         app_regs.humidity_prh = data.humidity_prh;
@@ -104,7 +119,7 @@ void update_app_state()
         app_regs.pressure_temp_humidity[2] = data.humidity_prh;
         
         // Send an event for the aggregate register
-        if (!HarpCore::is_muted() && bool(app_regs.enable_sensor_dispatch_events))
+        if (!HarpCore::is_muted() && HarpCore::events_enabled() && bool(app_regs.enable_sensor_dispatch_events))
             HarpCApp::send_harp_reply(EVENT, APP_REG_START_ADDRESS + 3);
 
 
@@ -128,9 +143,7 @@ HarpCApp& app = HarpCApp::init(who_am_i, hw_version_major, hw_version_minor,
 // Core0 main.
 int main()
 {
- 
-
-// Init Synchronizer.
+    // Init Synchronizer.
     HarpSynchronizer& sync = HarpSynchronizer::init(HARP_SYNC_UART_ID,
                                                     HARP_SYNC_RX_PIN);
     // app.set_visual_indicators_fn(set_led_state);
@@ -142,10 +155,41 @@ int main()
 
     // enable events by default
     app_regs.enable_sensor_dispatch_events = 1;
+    app_regs.temperature_offset_c = TEMPERATURE_OFFSET_C;
 
     while(true) {
 
         app.run();
         
     }
+}
+
+static void configure_clock()
+{
+    clock_configure(clk_sys,
+                    CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLKSRC_CLK_SYS_AUX,
+                    CLOCKS_CLK_SYS_CTRL_AUXSRC_VALUE_CLKSRC_PLL_USB,
+                    SYS_CLOCK_SPEED_MHZ * MHZ,
+                    SYS_CLOCK_SPEED_MHZ * MHZ);
+
+    // Turn off PLL sys for good measure
+    pll_deinit(pll_sys);
+
+    // CLK peri is clocked from clk_sys so need to change clk_peri's freq
+    clock_configure(clk_peri,
+                    CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLKSRC_PLL_USB,
+                    CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLK_SYS,
+                    clock_get_hz(clk_usb),
+                    clock_get_hz(clk_usb));
+
+    // CLK ref is clocked from clk_sys so need to change clk_peri's freq
+    clock_configure(clk_ref,
+                    CLOCKS_CLK_REF_CTRL_SRC_VALUE_XOSC_CLKSRC,
+                    CLOCKS_CLK_REF_CTRL_SRC_VALUE_CLKSRC_CLK_REF_AUX,
+                    SYS_CLOCK_SPEED_MHZ * MHZ,
+                    SYS_CLOCK_SPEED_MHZ * MHZ);
+
+    // Re init uart now that clk_peri has changed
+    stdio_init_all();
+    
 }
