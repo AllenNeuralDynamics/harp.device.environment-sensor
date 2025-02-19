@@ -8,11 +8,18 @@ add_definitions(-DGIT_HASH="${COMMIT_ID}") # Usable in source code.
 add_definitions(-DUSBD_MANUFACTURER="Allen Institute")
 add_definitions(-DUSBD_PRODUCT="Environment Sensor")
 
-if (WIN32)
-    include($ENV{PICO_SDK_PATH}/pico_sdk_init.cmake)
+
+if (DEFINED PICO_SDK_PATH)
+    message("Using explicitly defined PICO_SDK_PATH.")
+elseif (DEFINED ENV{PICO_SDK_PATH} AND NOT DEFINED PICO_SDK_PATH)
+    add_definitions(-DPICO_SDK_PATH="$ENV{PICO_SDK_PATH}")
+    message("Using environment variable PICO_SDK_PATH.")
 else()
-    include(${PICO_SDK_PATH}/pico_sdk_init.cmake)
-endif ()
+    message(SEND_ERROR "PICO_SDK_PATH is not defined either as an environment "
+"variable or explicitly via 'cmake -DPICO_SDK_PATH=<path to pico sdk> ..'")
+endif()
+include(${PICO_SDK_PATH}/pico_sdk_init.cmake)
+
 
 project(env_sensor)
 
