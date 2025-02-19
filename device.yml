@@ -43,6 +43,11 @@ registers:
     type: U8
     maskType: Events
     description: Enables (~2Hz) or disables the SensorData events
+  TemperatureOffsetC:
+    access: Read
+    address: 37
+    type: Float
+    description: Fixed experimentally-determined calibration offset added to nominal temperature sensor reading in degrees C
 bitMasks:
   Events:
     bits:

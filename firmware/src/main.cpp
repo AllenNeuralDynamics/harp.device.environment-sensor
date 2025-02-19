@@ -14,8 +14,8 @@
 #include "hardware/structs/pll.h"
 #include "hardware/structs/clocks.h"
 
-#define SYS_CLOCK_SPEED_MHZ 12
-#define TEMPERATURE_OFFSET -5.49f
+#define SYS_CLOCK_SPEED_MHZ (12)
+#define TEMPERATURE_OFFSET_C (-5.49f)
 
 static void configure_clock();
 
@@ -50,7 +50,7 @@ queue_t cmd_queue;
 //////// Harp stuff
 
 // Harp App Register Setup.
-const size_t reg_count = 5;
+const size_t reg_count = 6;
  
 // Define register contents.
 #pragma pack(push, 1)
@@ -61,6 +61,7 @@ struct app_regs_t
     float humidity_prh;         // app register 2
     float pressure_temp_humidity[3];
     uint8_t enable_sensor_dispatch_events;
+    float temperature_offset_c;
 } app_regs;
 #pragma pack(pop)
 
@@ -71,7 +72,8 @@ RegSpecs app_reg_specs[reg_count]
     {(uint8_t*)&app_regs.temperature_c, sizeof(app_regs.temperature_c), Float},
     {(uint8_t*)&app_regs.humidity_prh, sizeof(app_regs.humidity_prh), Float},
     {(uint8_t*)&app_regs.pressure_temp_humidity, sizeof(app_regs.pressure_temp_humidity), Float},
-    {(uint8_t*)&app_regs.enable_sensor_dispatch_events, sizeof(app_regs.enable_sensor_dispatch_events), U8}
+    {(uint8_t*)&app_regs.enable_sensor_dispatch_events, sizeof(app_regs.enable_sensor_dispatch_events), U8},
+    {(uint8_t*)&app_regs.temperature_offset_c, sizeof(app_regs.temperature_offset_c), Float}
 };
 
 // Define register read-and-write handler functions.
@@ -81,7 +83,7 @@ RegFnPair reg_handler_fns[reg_count]
     {&HarpCore::read_reg_generic, &HarpCore::write_to_read_only_reg_error},
     {&HarpCore::read_reg_generic, &HarpCore::write_to_read_only_reg_error},
     {&HarpCore::read_reg_generic, &HarpCore::write_to_read_only_reg_error},
-    {&HarpCore::read_reg_generic, &HarpCore::write_reg_generic},
+    {&HarpCore::read_reg_generic, &HarpCore::write_to_read_only_reg_error}
 };
 
 void app_reset()
@@ -92,6 +94,7 @@ void app_reset()
     app_regs.pressure_temp_humidity[0] = 0;
     app_regs.pressure_temp_humidity[1] = 0;
     app_regs.pressure_temp_humidity[2] = 0;
+    app_regs.temperature_offset_c = TEMPERATURE_OFFSET_C;
 
     app_regs.enable_sensor_dispatch_events = 1;
 
@@ -106,7 +109,7 @@ void update_app_state()
         sensor_data_t data;
         queue_remove_blocking(&sensor_queue, &data);
 
-        data.temperature_c += TEMPERATURE_OFFSET;
+        data.temperature_c += TEMPERATURE_OFFSET_C;
 
         app_regs.pressure_pa = data.pressure_pa;
         app_regs.temperature_c = data.temperature_c;
@@ -152,6 +155,7 @@ int main()
 
     // enable events by default
     app_regs.enable_sensor_dispatch_events = 1;
+    app_regs.temperature_offset_c = TEMPERATURE_OFFSET_C;
 
     while(true) {
 
