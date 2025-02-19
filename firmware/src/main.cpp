@@ -116,7 +116,7 @@ void update_app_state()
         app_regs.pressure_temp_humidity[2] = data.humidity_prh;
         
         // Send an event for the aggregate register
-        if (!HarpCore::is_muted() && bool(app_regs.enable_sensor_dispatch_events))
+        if (!HarpCore::is_muted() && HarpCore::events_enabled() && bool(app_regs.enable_sensor_dispatch_events))
             HarpCApp::send_harp_reply(EVENT, APP_REG_START_ADDRESS + 3);
 
 
