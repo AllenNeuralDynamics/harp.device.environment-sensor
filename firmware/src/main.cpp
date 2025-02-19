@@ -15,7 +15,7 @@
 #include "hardware/structs/clocks.h"
 
 #define SYS_CLOCK_SPEED_MHZ 12
-#define TEMPERATURE_OFFSET -3.76f
+#define TEMPERATURE_OFFSET -5.49f
 
 static void configure_clock();
 
@@ -51,7 +51,7 @@ queue_t cmd_queue;
 
 // Harp App Register Setup.
 const size_t reg_count = 5;
-
+ 
 // Define register contents.
 #pragma pack(push, 1)
 struct app_regs_t
@@ -140,8 +140,6 @@ HarpCApp& app = HarpCApp::init(who_am_i, hw_version_major, hw_version_minor,
 // Core0 main.
 int main()
 {
- 
-    configure_clock();
     // Init Synchronizer.
     HarpSynchronizer& sync = HarpSynchronizer::init(HARP_SYNC_UART_ID,
                                                     HARP_SYNC_RX_PIN);
@@ -175,8 +173,15 @@ static void configure_clock()
 
     // CLK peri is clocked from clk_sys so need to change clk_peri's freq
     clock_configure(clk_peri,
-                    0,
+                    CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLKSRC_PLL_USB,
                     CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLK_SYS,
+                    clock_get_hz(clk_usb),
+                    clock_get_hz(clk_usb));
+
+    // CLK ref is clocked from clk_sys so need to change clk_peri's freq
+    clock_configure(clk_ref,
+                    CLOCKS_CLK_REF_CTRL_SRC_VALUE_XOSC_CLKSRC,
+                    CLOCKS_CLK_REF_CTRL_SRC_VALUE_CLKSRC_CLK_REF_AUX,
                     SYS_CLOCK_SPEED_MHZ * MHZ,
                     SYS_CLOCK_SPEED_MHZ * MHZ);
 
