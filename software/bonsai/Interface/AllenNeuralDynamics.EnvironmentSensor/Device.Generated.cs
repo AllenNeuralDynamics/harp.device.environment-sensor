@@ -1,4 +1,4 @@
-﻿using Bonsai;
+using Bonsai;
 using Bonsai.Harp;
 using System;
 using System.Collections.Generic;
@@ -41,7 +41,8 @@ namespace AllenNeuralDynamics.EnvironmentSensor
             { 33, typeof(Temperature) },
             { 34, typeof(Humidity) },
             { 35, typeof(SensorData) },
-            { 36, typeof(EnableEvents) }
+            { 36, typeof(EnableEvents) },
+            { 37, typeof(TemperatureOffsetC) }
         };
 
         /// <summary>
@@ -110,11 +111,13 @@ namespace AllenNeuralDynamics.EnvironmentSensor
     /// <seealso cref="Humidity"/>
     /// <seealso cref="SensorData"/>
     /// <seealso cref="EnableEvents"/>
+    /// <seealso cref="TemperatureOffsetC"/>
     [XmlInclude(typeof(Pressure))]
     [XmlInclude(typeof(Temperature))]
     [XmlInclude(typeof(Humidity))]
     [XmlInclude(typeof(SensorData))]
     [XmlInclude(typeof(EnableEvents))]
+    [XmlInclude(typeof(TemperatureOffsetC))]
     [Description("Filters register-specific messages reported by the EnvironmentSensor device.")]
     public class FilterRegister : FilterRegisterBuilder, INamedElement
     {
@@ -141,16 +144,19 @@ namespace AllenNeuralDynamics.EnvironmentSensor
     /// <seealso cref="Humidity"/>
     /// <seealso cref="SensorData"/>
     /// <seealso cref="EnableEvents"/>
+    /// <seealso cref="TemperatureOffsetC"/>
     [XmlInclude(typeof(Pressure))]
     [XmlInclude(typeof(Temperature))]
     [XmlInclude(typeof(Humidity))]
     [XmlInclude(typeof(SensorData))]
     [XmlInclude(typeof(EnableEvents))]
+    [XmlInclude(typeof(TemperatureOffsetC))]
     [XmlInclude(typeof(TimestampedPressure))]
     [XmlInclude(typeof(TimestampedTemperature))]
     [XmlInclude(typeof(TimestampedHumidity))]
     [XmlInclude(typeof(TimestampedSensorData))]
     [XmlInclude(typeof(TimestampedEnableEvents))]
+    [XmlInclude(typeof(TimestampedTemperatureOffsetC))]
     [Description("Filters and selects specific messages reported by the EnvironmentSensor device.")]
     public partial class Parse : ParseBuilder, INamedElement
     {
@@ -174,11 +180,13 @@ namespace AllenNeuralDynamics.EnvironmentSensor
     /// <seealso cref="Humidity"/>
     /// <seealso cref="SensorData"/>
     /// <seealso cref="EnableEvents"/>
+    /// <seealso cref="TemperatureOffsetC"/>
     [XmlInclude(typeof(Pressure))]
     [XmlInclude(typeof(Temperature))]
     [XmlInclude(typeof(Humidity))]
     [XmlInclude(typeof(SensorData))]
     [XmlInclude(typeof(EnableEvents))]
+    [XmlInclude(typeof(TemperatureOffsetC))]
     [Description("Formats a sequence of values as specific EnvironmentSensor register messages.")]
     public partial class Format : FormatBuilder, INamedElement
     {
@@ -695,6 +703,102 @@ namespace AllenNeuralDynamics.EnvironmentSensor
     }
 
     /// <summary>
+    /// Represents a register that fixed experimentally-determined calibration offset added to nominal temperature sensor reading in degrees C.
+    /// </summary>
+    [Description("Fixed experimentally-determined calibration offset added to nominal temperature sensor reading in degrees C")]
+    public partial class TemperatureOffsetC
+    {
+        /// <summary>
+        /// Represents the address of the <see cref="TemperatureOffsetC"/> register. This field is constant.
+        /// </summary>
+        public const int Address = 37;
+
+        /// <summary>
+        /// Represents the payload type of the <see cref="TemperatureOffsetC"/> register. This field is constant.
+        /// </summary>
+        public const PayloadType RegisterType = PayloadType.Float;
+
+        /// <summary>
+        /// Represents the length of the <see cref="TemperatureOffsetC"/> register. This field is constant.
+        /// </summary>
+        public const int RegisterLength = 1;
+
+        /// <summary>
+        /// Returns the payload data for <see cref="TemperatureOffsetC"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the message payload.</returns>
+        public static float GetPayload(HarpMessage message)
+        {
+            return message.GetPayloadSingle();
+        }
+
+        /// <summary>
+        /// Returns the timestamped payload data for <see cref="TemperatureOffsetC"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<float> GetTimestampedPayload(HarpMessage message)
+        {
+            return message.GetTimestampedPayloadSingle();
+        }
+
+        /// <summary>
+        /// Returns a Harp message for the <see cref="TemperatureOffsetC"/> register.
+        /// </summary>
+        /// <param name="messageType">The type of the Harp message.</param>
+        /// <param name="value">The value to be stored in the message payload.</param>
+        /// <returns>
+        /// A <see cref="HarpMessage"/> object for the <see cref="TemperatureOffsetC"/> register
+        /// with the specified message type and payload.
+        /// </returns>
+        public static HarpMessage FromPayload(MessageType messageType, float value)
+        {
+            return HarpMessage.FromSingle(Address, messageType, value);
+        }
+
+        /// <summary>
+        /// Returns a timestamped Harp message for the <see cref="TemperatureOffsetC"/>
+        /// register.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">The type of the Harp message.</param>
+        /// <param name="value">The value to be stored in the message payload.</param>
+        /// <returns>
+        /// A <see cref="HarpMessage"/> object for the <see cref="TemperatureOffsetC"/> register
+        /// with the specified message type, timestamp, and payload.
+        /// </returns>
+        public static HarpMessage FromPayload(double timestamp, MessageType messageType, float value)
+        {
+            return HarpMessage.FromSingle(Address, timestamp, messageType, value);
+        }
+    }
+
+    /// <summary>
+    /// Provides methods for manipulating timestamped messages from the
+    /// TemperatureOffsetC register.
+    /// </summary>
+    /// <seealso cref="TemperatureOffsetC"/>
+    [Description("Filters and selects timestamped messages from the TemperatureOffsetC register.")]
+    public partial class TimestampedTemperatureOffsetC
+    {
+        /// <summary>
+        /// Represents the address of the <see cref="TemperatureOffsetC"/> register. This field is constant.
+        /// </summary>
+        public const int Address = TemperatureOffsetC.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="TemperatureOffsetC"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<float> GetPayload(HarpMessage message)
+        {
+            return TemperatureOffsetC.GetTimestampedPayload(message);
+        }
+    }
+
+    /// <summary>
     /// Represents an operator which creates standard message payloads for the
     /// EnvironmentSensor device.
     /// </summary>
@@ -703,16 +807,19 @@ namespace AllenNeuralDynamics.EnvironmentSensor
     /// <seealso cref="CreateHumidityPayload"/>
     /// <seealso cref="CreateSensorDataPayload"/>
     /// <seealso cref="CreateEnableEventsPayload"/>
+    /// <seealso cref="CreateTemperatureOffsetCPayload"/>
     [XmlInclude(typeof(CreatePressurePayload))]
     [XmlInclude(typeof(CreateTemperaturePayload))]
     [XmlInclude(typeof(CreateHumidityPayload))]
     [XmlInclude(typeof(CreateSensorDataPayload))]
     [XmlInclude(typeof(CreateEnableEventsPayload))]
+    [XmlInclude(typeof(CreateTemperatureOffsetCPayload))]
     [XmlInclude(typeof(CreateTimestampedPressurePayload))]
     [XmlInclude(typeof(CreateTimestampedTemperaturePayload))]
     [XmlInclude(typeof(CreateTimestampedHumidityPayload))]
     [XmlInclude(typeof(CreateTimestampedSensorDataPayload))]
     [XmlInclude(typeof(CreateTimestampedEnableEventsPayload))]
+    [XmlInclude(typeof(CreateTimestampedTemperatureOffsetCPayload))]
     [Description("Creates standard message payloads for the EnvironmentSensor device.")]
     public partial class CreateMessage : CreateMessageBuilder, INamedElement
     {
@@ -1010,6 +1117,60 @@ namespace AllenNeuralDynamics.EnvironmentSensor
         public HarpMessage GetMessage(double timestamp, MessageType messageType)
         {
             return AllenNeuralDynamics.EnvironmentSensor.EnableEvents.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
+    /// that fixed experimentally-determined calibration offset added to nominal temperature sensor reading in degrees C.
+    /// </summary>
+    [DisplayName("TemperatureOffsetCPayload")]
+    [Description("Creates a message payload that fixed experimentally-determined calibration offset added to nominal temperature sensor reading in degrees C.")]
+    public partial class CreateTemperatureOffsetCPayload
+    {
+        /// <summary>
+        /// Gets or sets the value that fixed experimentally-determined calibration offset added to nominal temperature sensor reading in degrees C.
+        /// </summary>
+        [Description("The value that fixed experimentally-determined calibration offset added to nominal temperature sensor reading in degrees C.")]
+        public float TemperatureOffsetC { get; set; }
+
+        /// <summary>
+        /// Creates a message payload for the TemperatureOffsetC register.
+        /// </summary>
+        /// <returns>The created message payload value.</returns>
+        public float GetPayload()
+        {
+            return TemperatureOffsetC;
+        }
+
+        /// <summary>
+        /// Creates a message that fixed experimentally-determined calibration offset added to nominal temperature sensor reading in degrees C.
+        /// </summary>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the TemperatureOffsetC register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
+        {
+            return AllenNeuralDynamics.EnvironmentSensor.TemperatureOffsetC.FromPayload(messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a timestamped message payload
+    /// that fixed experimentally-determined calibration offset added to nominal temperature sensor reading in degrees C.
+    /// </summary>
+    [DisplayName("TimestampedTemperatureOffsetCPayload")]
+    [Description("Creates a timestamped message payload that fixed experimentally-determined calibration offset added to nominal temperature sensor reading in degrees C.")]
+    public partial class CreateTimestampedTemperatureOffsetCPayload : CreateTemperatureOffsetCPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that fixed experimentally-determined calibration offset added to nominal temperature sensor reading in degrees C.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the TemperatureOffsetC register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return AllenNeuralDynamics.EnvironmentSensor.TemperatureOffsetC.FromPayload(timestamp, messageType, GetPayload());
         }
     }
 
