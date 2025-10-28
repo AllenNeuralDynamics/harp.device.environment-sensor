@@ -14,7 +14,7 @@
 #include "hardware/structs/pll.h"
 #include "hardware/structs/clocks.h"
 
-#define SYS_CLOCK_SPEED_MHZ (12)
+#define SYS_CLOCK_SPEED_MHZ (125)
 #define TEMPERATURE_OFFSET_C (-5.49f)
 
 static void configure_clock();
@@ -110,6 +110,7 @@ void update_app_state()
         queue_remove_blocking(&sensor_queue, &data);
 
         data.temperature_c += TEMPERATURE_OFFSET_C;
+        data.humidity_prh = 1.53f * data.humidity_prh - 5.22f;
 
         app_regs.pressure_pa = data.pressure_pa;
         app_regs.temperature_c = data.temperature_c;
