@@ -15,6 +15,8 @@
 #include "hardware/structs/clocks.h"
 
 #define TEMPERATURE_OFFSET_C (-5.49f)
+#define REL_HUM_SLOPE_OFFSET  (1.53f)
+#define REL_HUM_INTCP_OFFSET (-5.22f)
 
 // Create device name array.
 const uint16_t who_am_i = ENV_SENSOR_DEVICE_ID;
@@ -107,7 +109,7 @@ void update_app_state()
         queue_remove_blocking(&sensor_queue, &data);
 
         data.temperature_c += TEMPERATURE_OFFSET_C;
-        data.humidity_prh = 1.53f * data.humidity_prh - 5.22f;
+        data.humidity_prh = REL_HUM_SLOPE_OFFSET * data.humidity_prh + REL_HUM_INTCP_OFFSET;
 
         app_regs.pressure_pa = data.pressure_pa;
         app_regs.temperature_c = data.temperature_c;
