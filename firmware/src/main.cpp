@@ -14,10 +14,9 @@
 #include "hardware/structs/pll.h"
 #include "hardware/structs/clocks.h"
 
-#define SYS_CLOCK_SPEED_MHZ (12)
 #define TEMPERATURE_OFFSET_C (-5.49f)
-
-static void configure_clock();
+#define REL_HUM_SLOPE_OFFSET  (1.53f)
+#define REL_HUM_INTCP_OFFSET (-5.22f)
 
 // Create device name array.
 const uint16_t who_am_i = ENV_SENSOR_DEVICE_ID;
@@ -110,6 +109,7 @@ void update_app_state()
         queue_remove_blocking(&sensor_queue, &data);
 
         data.temperature_c += TEMPERATURE_OFFSET_C;
+        data.humidity_prh = REL_HUM_SLOPE_OFFSET * data.humidity_prh + REL_HUM_INTCP_OFFSET;
 
         app_regs.pressure_pa = data.pressure_pa;
         app_regs.temperature_c = data.temperature_c;
@@ -162,34 +162,4 @@ int main()
         app.run();
         
     }
-}
-
-static void configure_clock()
-{
-    clock_configure(clk_sys,
-                    CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLKSRC_CLK_SYS_AUX,
-                    CLOCKS_CLK_SYS_CTRL_AUXSRC_VALUE_CLKSRC_PLL_USB,
-                    SYS_CLOCK_SPEED_MHZ * MHZ,
-                    SYS_CLOCK_SPEED_MHZ * MHZ);
-
-    // Turn off PLL sys for good measure
-    pll_deinit(pll_sys);
-
-    // CLK peri is clocked from clk_sys so need to change clk_peri's freq
-    clock_configure(clk_peri,
-                    CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLKSRC_PLL_USB,
-                    CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLK_SYS,
-                    clock_get_hz(clk_usb),
-                    clock_get_hz(clk_usb));
-
-    // CLK ref is clocked from clk_sys so need to change clk_peri's freq
-    clock_configure(clk_ref,
-                    CLOCKS_CLK_REF_CTRL_SRC_VALUE_XOSC_CLKSRC,
-                    CLOCKS_CLK_REF_CTRL_SRC_VALUE_CLKSRC_CLK_REF_AUX,
-                    SYS_CLOCK_SPEED_MHZ * MHZ,
-                    SYS_CLOCK_SPEED_MHZ * MHZ);
-
-    // Re init uart now that clk_peri has changed
-    stdio_init_all();
-    
 }
