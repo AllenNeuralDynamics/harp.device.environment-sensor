@@ -51,6 +51,6 @@ registers:
 bitMasks:
   Events:
     bits:
-      Disable: 0x0
+      None: 0x0
       SensorData: 0x1
     description: Available events on the device
